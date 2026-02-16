@@ -272,21 +272,21 @@ const projects = [
     title: 'Noteshala ERP WebView App',
     description: 'Flutter-based WebView app enabling seamless mobile access to ERP features. Implemented Flutter Flavors for multi-client deployment from single codebase.',
     tech: ['Flutter', 'WebView', 'Flavors', 'Play Store'],
-    iconUrl: 'https://drive.google.com/file/d/1xl0GNsP0uU7ErB0G2vGwl65UxtzcBpAb/view?usp=sharing',
+    iconUrl: 'https://res.cloudinary.com/dygzdptij/image/upload/v1771268564/ns_gjqus2.png',
     link: 'https://play.google.com/store/apps/details?id=com.softiwa.noteshala'
   },
   {
     title: 'CircleBook App',
     description: 'Professional Committee Management app with Firebase authentication, real-time database sync, and published on Google Play Store.',
     tech: ['Flutter', 'Spring Boot', 'Firebase', 'REST API'],
-    iconUrl: 'https://drive.google.com/file/d/1biWcYJ6L9NVWO1c3P6nmBghDbX1zKvFn/view?usp=sharing',
+    iconUrl: 'https://res.cloudinary.com/dygzdptij/image/upload/v1771268563/cb_vprach.png',
     link: 'https://play.google.com/store/apps/details?id=com.softiwa.circlebook'
   },
   {
     title: 'Shubhchintak Foundation Website',
     description: 'Responsive React.js website with dynamic routing, Formik forms, Yup validation, and custom page transition animations.',
     tech: ['React.js', 'React Router', 'Formik', 'Netlify'],
-    iconUrl: 'https://drive.google.com/file/d/1QWSVfMHXdxnawFKiLIsnIQyv20Ln2c3F/view?usp=sharing',
+    iconUrl: 'https://res.cloudinary.com/dygzdptij/image/upload/v1771268564/shubh_yv66mi.png',
     link: 'https://shubhchintakfoundationtrust.netlify.app/'
   }
 ];
@@ -636,7 +636,7 @@ export function App() {
                   {/* Image */}
                   <div className="absolute inset-2 rounded-full overflow-hidden border-2 border-slate-800">
                     <img
-                      src="https://drive.google.com/file/d/1XCt0_GsWdL-pLtFRQZ24dBvwgkj63K4A/view?usp=sharing"
+                      src="https://res.cloudinary.com/dygzdptij/image/upload/v1771268567/profile_xjl2n5.png"
                       alt="Jatin Tyagi"
                       className="w-full h-full object-cover"
                     />
