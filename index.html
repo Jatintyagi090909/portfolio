@@ -4,14 +4,51 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jatin Tyagi | Software Developer</title>
-    <meta name="description" content="Jatin Tyagi - Software Developer specializing in Full Stack Development, Mobile Apps with Flutter, Spring Boot, React.js and Angular." />
+    <meta name="description" content="Software Developer specializing in Spring Boot, Flutter, and React.js. Building exceptional digital experiences with modern technologies." />
     <meta name="keywords" content="Jatin Tyagi, Software Developer, Full Stack, Flutter, React, Angular, Spring Boot" />
     <meta name="author" content="Jatin Tyagi" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      * {
+        font-family: 'Inter', sans-serif;
+      }
+      code, pre, .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .animate-spin-slow {
+        animation: spin-slow 4s linear infinite;
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #020617;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+      /* Selection */
+      ::selection {
+        background: rgba(34, 211, 238, 0.3);
+        color: #cffafe;
+      }
+    </style>
   </head>
-  <body>
+  <body class="bg-slate-950">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

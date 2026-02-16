@@ -17,331 +17,361 @@ import {
   Award,
   Briefcase,
   FolderGit2,
-  User,
   Menu,
   X,
   Terminal,
-  Sparkles,
   Download,
-  Zap,
-  Globe,
-  Play
+  ArrowRight,
+  ArrowUpRight,
+  Calendar,
+  Layers,
+  Cpu
 } from 'lucide-react';
 
-// Particle Background Component
-const ParticleBackground = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+// Smooth Cursor Glow Effect - Optimized with throttling
+const CursorGlow = () => {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const particles: { x: number; y: number; vx: number; vy: number; size: number; opacity: number }[] = [];
-    const particleCount = 80;
-
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.5 + 0.2
+    const handleMouseMove = (e: MouseEvent) => {
+      if (rafRef.current) return; // Skip if already scheduled
+      rafRef.current = requestAnimationFrame(() => {
+        setPosition({ x: e.clientX, y: e.clientY });
+        rafRef.current = null;
       });
-    }
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach((p, i) => {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(34, 211, 238, ${p.opacity})`;
-        ctx.fill();
-
-        // Draw connections
-        particles.slice(i + 1).forEach(p2 => {
-          const dx = p.x - p2.x;
-          const dy = p.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(34, 211, 238, ${0.1 * (1 - dist / 120)})`;
-            ctx.stroke();
-          }
-        });
-      });
-
-      requestAnimationFrame(animate);
     };
-
-    animate();
-
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />;
-};
-
-// Typing Effect Component
-const TypeWriter = ({ texts, speed = 100 }: { texts: string[]; speed?: number }) => {
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [currentText, setCurrentText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const fullText = texts[currentTextIndex];
-
-      if (!isDeleting) {
-        setCurrentText(fullText.substring(0, currentText.length + 1));
-        if (currentText === fullText) {
-          setTimeout(() => setIsDeleting(true), 2000);
-        }
-      } else {
-        setCurrentText(fullText.substring(0, currentText.length - 1));
-        if (currentText === '') {
-          setIsDeleting(false);
-          setCurrentTextIndex((prev) => (prev + 1) % texts.length);
-        }
-      }
-    }, isDeleting ? speed / 2 : speed);
-
-    return () => clearTimeout(timeout);
-  }, [currentText, isDeleting, currentTextIndex, texts, speed]);
-
   return (
-    <span className="text-cyan-400">
-      {currentText}
-      <span className="animate-pulse">|</span>
-    </span>
+    <div
+      className="pointer-events-none fixed inset-0 z-30 hidden lg:block"
+      style={{
+        background: `radial-gradient(600px at ${position.x}px ${position.y}px, rgba(34, 211, 238, 0.03), transparent 80%)`,
+        willChange: 'background'
+      }}
+    />
   );
 };
 
-// Glowing Card Component
-const GlowCard = ({ children, className = '', glowColor = 'cyan' }: { children: React.ReactNode; className?: string; glowColor?: string }) => {
-  const colors: Record<string, string> = {
-    cyan: 'hover:shadow-cyan-500/20',
-    blue: 'hover:shadow-blue-500/20',
-    purple: 'hover:shadow-purple-500/20',
-    green: 'hover:shadow-green-500/20',
-    orange: 'hover:shadow-orange-500/20',
-    pink: 'hover:shadow-pink-500/20'
+// Animated Background Grid
+const GridBackground = () => (
+  <div className="fixed inset-0 z-0">
+    <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+  </div>
+);
+
+// Floating Orbs - Static for better performance
+const FloatingOrbs = () => (
+  <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div className="absolute top-1/4 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-[128px]" />
+    <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-purple-500/10 rounded-full blur-[128px]" />
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[150px]" />
+  </div>
+);
+
+// Section Header Component
+const SectionHeader = ({ number, title, subtitle }: { number: string; title: string; subtitle?: string }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    className="mb-16"
+  >
+    <div className="flex items-center gap-4 mb-2">
+      <span className="text-cyan-400 font-mono text-sm">{number}</span>
+      <h2 className="text-3xl md:text-4xl font-bold text-white">{title}</h2>
+      <div className="flex-1 h-px bg-gradient-to-r from-slate-700 to-transparent max-w-xs" />
+    </div>
+    {subtitle && <p className="text-slate-400 mt-2 max-w-2xl">{subtitle}</p>}
+  </motion.div>
+);
+
+// Magnetic Button Component
+const MagneticButton = ({ children, className = '', onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) => {
+  const ref = useRef<HTMLButtonElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const btn = ref.current;
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    btn.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px)`;
+  };
+
+  const handleMouseLeave = () => {
+    if (ref.current) {
+      ref.current.style.transform = 'translate(0, 0)';
+    }
   };
 
   return (
-    <div className={`relative group ${className}`}>
-      <div className={`absolute -inset-0.5 bg-gradient-to-r from-${glowColor}-500 to-${glowColor}-600 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-500`}></div>
-      <div className={`relative bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-700/50 group-hover:border-${glowColor}-500/50 transition-all duration-300 hover:shadow-2xl ${colors[glowColor]} overflow-hidden`}>
-        {children}
-      </div>
-    </div>
-  );
-};
-
-// Code Block Component
-const CodeBlock = () => {
-  const code = `const developer = {
-  name: "Jatin Tyagi",
-  role: "Software Developer",
-  skills: ["Java", "Flutter", "React"],
-  passion: "Building amazing apps",
-  coffee: true ☕
-};`;
-
-  return (
-    <div className="bg-slate-950 rounded-xl border border-slate-700/50 overflow-hidden font-mono text-sm">
-      <div className="flex items-center gap-2 px-4 py-3 bg-slate-800/50 border-b border-slate-700/50">
-        <div className="w-3 h-3 rounded-full bg-red-500"></div>
-        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-        <div className="w-3 h-3 rounded-full bg-green-500"></div>
-        <span className="text-slate-400 text-xs ml-2">developer.js</span>
-      </div>
-      <pre className="p-4 text-slate-300 overflow-x-auto">
-        <code>{code}</code>
-      </pre>
-    </div>
-  );
-};
-
-// Stats Counter Component
-const StatCounter = ({ value, label, icon: Icon }: { value: string; label: string; icon: React.ElementType }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.5 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      className="text-center"
+    <button
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
+      className={`transition-all duration-200 ${className}`}
     >
-      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 mb-3">
-        <Icon className="w-8 h-8 text-cyan-400" />
-      </div>
-      <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">{value}</div>
-      <div className="text-slate-400 text-sm mt-1">{label}</div>
-    </motion.div>
+      {children}
+    </button>
   );
 };
+
+// Skill Badge Component - Simplified animations
+const SkillBadge = ({ name }: { name: string }) => (
+  <span className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-full text-sm text-slate-300 hover:border-cyan-500/50 hover:text-cyan-400 transition-colors duration-200 cursor-default">
+    {name}
+  </span>
+);
+
+// Project Card Component
+const ProjectCard = ({ project, index }: { project: typeof projects[0]; index: number }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay: index * 0.1 }}
+    className="group relative"
+  >
+    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <div className="relative bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-2xl overflow-hidden hover:border-slate-700 transition-all duration-500">
+      {/* Project Image/Icon Area */}
+      <div className="relative h-48 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5" />
+        <img
+          src={project.iconUrl}
+          alt={project.title}
+          className="w-20 h-20 rounded-2xl object-cover shadow-2xl group-hover:scale-110 transition-transform duration-500"
+        />
+        <div className="absolute top-4 right-4 flex gap-2">
+          <a
+            href={project.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 bg-slate-900/80 backdrop-blur-sm rounded-full border border-slate-700 hover:border-cyan-500 hover:bg-cyan-500/10 transition-all duration-300"
+          >
+            <ExternalLink size={16} className="text-slate-400 group-hover:text-cyan-400" />
+          </a>
+        </div>
+      </div>
+
+      {/* Project Content */}
+      <div className="p-6">
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <h3 className="text-lg font-semibold text-white group-hover:text-cyan-400 transition-colors">
+            {project.title}
+          </h3>
+        </div>
+        <p className="text-slate-400 text-sm leading-relaxed mb-4">
+          {project.description}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {project.tech.map((tech) => (
+            <span
+              key={tech}
+              className="px-2.5 py-1 bg-slate-800/50 text-xs font-mono text-cyan-400/80 rounded-md border border-slate-700/50"
+            >
+              {tech}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </motion.div>
+);
+
+// Experience Card Component
+const ExperienceCard = ({ exp, index }: { exp: typeof experiences[0]; index: number }) => (
+  <motion.div
+    initial={{ opacity: 0, x: -30 }}
+    whileInView={{ opacity: 1, x: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay: index * 0.15 }}
+    className="relative pl-8 pb-12 last:pb-0"
+  >
+    {/* Timeline Line */}
+    <div className="absolute left-0 top-2 bottom-0 w-px bg-gradient-to-b from-cyan-500 via-blue-500 to-transparent" />
+    
+    {/* Timeline Dot */}
+    <div className="absolute left-0 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-cyan-500 ring-4 ring-slate-950" />
+
+    <div className="group bg-slate-900/30 backdrop-blur-sm border border-slate-800/50 rounded-xl p-6 hover:border-slate-700 hover:bg-slate-900/50 transition-all duration-300">
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+        <div>
+          <h3 className="text-lg font-semibold text-white group-hover:text-cyan-400 transition-colors">
+            {exp.title}
+          </h3>
+          <p className="text-cyan-400/80 font-medium">{exp.company}</p>
+          <div className="flex items-center gap-2 mt-1 text-slate-500 text-sm">
+            <MapPin size={14} />
+            <span>{exp.location}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-full">
+          <Calendar size={14} className="text-cyan-400" />
+          <span className="text-cyan-400 text-sm font-medium">{exp.period}</span>
+        </div>
+      </div>
+
+      <ul className="space-y-2">
+        {exp.highlights.map((highlight, i) => (
+          <li key={i} className="flex gap-3 text-slate-400 text-sm">
+            <ArrowRight size={16} className="text-cyan-500 flex-shrink-0 mt-0.5" />
+            <span>{highlight}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </motion.div>
+);
+
+// Skills Data
+const skillCategories = [
+  {
+    title: 'Backend & Architecture',
+    icon: Server,
+    skills: ['Spring Boot', 'Java', 'REST API', 'MVC', 'JPA/Hibernate', 'Authentication']
+  },
+  {
+    title: 'Frontend Development',
+    icon: Layers,
+    skills: ['React.js', 'Angular.js', 'TypeScript', 'Tailwind CSS', 'HTML5', 'CSS3']
+  },
+  {
+    title: 'Mobile Development',
+    icon: Smartphone,
+    skills: ['Flutter', 'Dart', 'Android SDK', 'REST Integration', 'Android Studio']
+  },
+  {
+    title: 'Database & Storage',
+    icon: Database,
+    skills: ['PostgreSQL', 'MySQL', 'Firebase', 'Realtime DB', 'Cloud Firestore']
+  },
+  {
+    title: 'DevOps & Tools',
+    icon: GitBranch,
+    skills: ['Git', 'GitHub', 'CI/CD', 'Jenkins', 'Gradle', 'Play Console']
+  },
+  {
+    title: 'AI & Machine Learning',
+    icon: Cpu,
+    skills: ['Python', 'Machine Learning', 'Deep Learning', 'TensorFlow', 'Data Analysis']
+  }
+];
+
+// Projects Data
+const projects = [
+  {
+    title: 'Noteshala ERP WebView App',
+    description: 'Flutter-based WebView app enabling seamless mobile access to ERP features. Implemented Flutter Flavors for multi-client deployment from single codebase.',
+    tech: ['Flutter', 'WebView', 'Flavors', 'Play Store'],
+    iconUrl: 'https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247581/Picsart_26-02-16_18-42-18-490_fnuzrv.png',
+    link: 'https://play.google.com/store/apps/details?id=com.softiwa.noteshala'
+  },
+  {
+    title: 'CircleBook App',
+    description: 'Professional Committee Management app with Firebase authentication, real-time database sync, and published on Google Play Store.',
+    tech: ['Flutter', 'Spring Boot', 'Firebase', 'REST API'],
+    iconUrl: 'https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247582/Picsart_26-02-16_18-42-42-221_devoy3.png',
+    link: 'https://play.google.com/store/apps/details?id=com.softiwa.circlebook'
+  },
+  {
+    title: 'Shubhchintak Foundation Website',
+    description: 'Responsive React.js website with dynamic routing, Formik forms, Yup validation, and custom page transition animations.',
+    tech: ['React.js', 'React Router', 'Formik', 'Netlify'],
+    iconUrl: 'https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247963/shubh_png_2_fk0v5g.jpg',
+    link: 'https://shubhchintakfoundationtrust.netlify.app/'
+  }
+];
+
+// Experiences Data
+const experiences = [
+  {
+    title: 'Software Developer Intern',
+    company: 'Softiwa Technologies Pvt. Ltd.',
+    location: 'Remote · Faridabad',
+    period: 'Jun 2025 – Present',
+    highlights: [
+      'Building scalable apps with Angular frontend and Spring Boot backend',
+      'Designing secure RESTful APIs for enhanced system performance',
+      'Developing Flutter mobile apps with Firebase integration',
+      'Implementing Agile workflows with Git version control'
+    ]
+  },
+  {
+    title: 'Web Developer Intern',
+    company: 'Shubhchintak Foundation Trust',
+    location: 'Remote · Pune',
+    period: 'Jan 2025 – Apr 2025',
+    highlights: [
+      'Architected and developed the official website using React.js',
+      'Collaborated on mission-aligned branding and UX design',
+      'Implemented fully responsive design patterns'
+    ]
+  },
+  {
+    title: 'AI/ML Intern',
+    company: 'Ensino Research and Development Pvt. Ltd.',
+    location: 'Remote · Dehradun',
+    period: 'Jun 2024 – Aug 2024',
+    highlights: [
+      'Completed intensive 8-week ML/DL training program',
+      'Applied ML algorithms to real-world datasets',
+      'Developed innovative AI solutions using cutting-edge frameworks'
+    ]
+  }
+];
 
 export function App() {
   const [activeSection, setActiveSection] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { scrollYProgress } = useScroll();
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: Terminal },
-    { id: 'about', label: 'About', icon: User },
-    { id: 'skills', label: 'Skills', icon: Code2 },
-    { id: 'experience', label: 'Experience', icon: Briefcase },
-    { id: 'projects', label: 'Projects', icon: FolderGit2 },
-    { id: 'education', label: 'Education', icon: GraduationCap },
-    { id: 'contact', label: 'Contact', icon: Mail }
-  ];
-
-  const skills = [
-    {
-      category: 'Backend & Architecture',
-      icon: Server,
-      color: 'cyan',
-      items: ['Spring Boot (Java)', 'REST API Design', 'MVC Architecture', 'Auth & Security', 'JPA/Hibernate']
-    },
-    {
-      category: 'Web Development',
-      icon: Globe,
-      color: 'blue',
-      items: ['React.js', 'Angular.js', 'TypeScript', 'Tailwind CSS', 'HTML5/CSS3']
-    },
-    {
-      category: 'Mobile Development',
-      icon: Smartphone,
-      color: 'purple',
-      items: ['Flutter', 'Dart', 'Android SDK', 'REST Integration', 'Android Studio']
-    },
-    {
-      category: 'Databases',
-      icon: Database,
-      color: 'green',
-      items: ['PostgreSQL', 'MySQL', 'Firebase', 'Realtime DB', 'Cloud Firestore']
-    },
-    {
-      category: 'DevOps & Tools',
-      icon: GitBranch,
-      color: 'orange',
-      items: ['Git/GitHub', 'CI/CD', 'Jenkins', 'Gradle', 'Play Console', 'Build Automation']
-    },
-    {
-      category: 'AI & Machine Learning',
-      icon: Sparkles,
-      color: 'pink',
-      items: ['Python', 'Machine Learning', 'Deep Learning', 'TensorFlow', 'Data Analysis']
-    }
-  ];
-
-  const experiences = [
-    {
-      title: 'Software Developer Intern',
-      company: 'Softiwa Technologies Pvt. Ltd.',
-      location: 'Remote · Faridabad',
-      period: 'June 2025 – Present',
-      color: 'cyan',
-      highlights: [
-        'Building scalable apps with Angular frontend and Spring Boot backend',
-        'Designing secure RESTful APIs for enhanced system performance',
-        'Developing Flutter mobile apps with Firebase integration',
-        'Implementing Agile workflows with Git version control'
-      ]
-    },
-    {
-      title: 'Web Developer Intern',
-      company: 'Shubhchintak Foundation Trust',
-      location: 'Remote · Pune',
-      period: 'Jan 2025 – April 2025',
-      color: 'blue',
-      highlights: [
-        'Architected and developed the official website using React.js',
-        'Collaborated on mission-aligned branding and UX design',
-        'Implemented fully responsive design patterns'
-      ]
-    },
-    {
-      title: 'AI/ML Intern',
-      company: 'Ensino Research and Development Pvt. Ltd.',
-      location: 'Remote · Dehradun',
-      period: 'June 2024 – Aug 2024',
-      color: 'purple',
-      highlights: [
-        'Completed intensive 8-week ML/DL training program',
-        'Applied ML algorithms to real-world datasets',
-        'Developed innovative AI solutions using cutting-edge frameworks'
-      ]
-    }
-  ];
-
-  const projects = [
-    {
-      title: 'Noteshala ERP WebView App',
-      description: 'Flutter-based WebView app enabling seamless mobile access to ERP features. Implemented Flutter Flavors for multi-client deployment from single codebase.',
-      tech: ['Flutter', 'WebView', 'Play Store', 'Flavors'],
-      color: 'cyan',
-      iconUrl: 'https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247581/Picsart_26-02-16_18-42-18-490_fnuzrv.png',
-      link: 'https://play.google.com/store/apps/details?id=com.softiwa.noteshala'
-    },
-    {
-      title: 'CircleBook App',
-      description: 'Professional Committee Management app with Firebase authentication, real-time database sync, and published on Google Play Store.',
-      tech: ['Flutter', 'Spring Boot', 'REST API', 'Firebase', 'Play Store', 'Realtime DB'],
-      color: 'blue',
-      iconUrl: 'https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247582/Picsart_26-02-16_18-42-42-221_devoy3.png',
-      link: 'https://play.google.com/store/apps/details?id=com.softiwa.circlebook'
-    },
-    {
-      title: 'Shubhchintak Foundation Website',
-      description: 'Responsive React.js website with dynamic routing, Formik forms, Yup validation, and custom page transition animations.',
-      tech: ['React.js', 'React Router', 'Formik', 'Netlify'],
-      color: 'purple',
-      iconUrl: 'https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247963/shubh_png_2_fk0v5g.jpg',
-      link: 'https://shubhchintakfoundationtrust.netlify.app/'
-    }
+    { id: 'home', label: 'Home' },
+    { id: 'about', label: 'About' },
+    { id: 'skills', label: 'Skills' },
+    { id: 'experience', label: 'Experience' },
+    { id: 'projects', label: 'Projects' },
+    { id: 'contact', label: 'Contact' }
   ];
 
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      const sections = navItems.map(item => document.getElementById(item.id));
-      const scrollPosition = window.scrollY + 150;
+      if (ticking) return;
+      ticking = true;
+      
+      requestAnimationFrame(() => {
+        setIsScrolled(window.scrollY > 50);
+        
+        const sections = navItems.map(item => document.getElementById(item.id));
+        const scrollPosition = window.scrollY + 150;
 
-      sections.forEach((section, index) => {
-        if (section) {
-          const sectionTop = section.offsetTop;
-          const sectionHeight = section.offsetHeight;
-          if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-            setActiveSection(navItems[index].id);
+        sections.forEach((section, index) => {
+          if (section) {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+              setActiveSection(navItems[index].id);
+            }
           }
-        }
+        });
+        ticking = false;
       });
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -354,62 +384,92 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white overflow-x-hidden">
-      <ParticleBackground />
+    <div className="min-h-screen bg-slate-950 text-white selection:bg-cyan-500/30 selection:text-cyan-200">
+      <CursorGlow />
+      <GridBackground />
+      <FloatingOrbs />
       
       {/* Progress Bar */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 origin-left z-[60]"
+        className="fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 origin-left z-[60]"
         style={{ scaleX }}
       />
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-2"
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled ? 'bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/50' : ''
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <motion.a
+              href="#home"
+              onClick={(e) => { e.preventDefault(); scrollToSection('home'); }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="group flex items-center gap-3"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                <Terminal className="w-5 h-5 text-white" />
+              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center overflow-hidden">
+                <Terminal className="w-5 h-5 text-white relative z-10" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              <span className="text-xl font-bold">
-                <span className="text-cyan-400">&lt;</span>
-                JT
-                <span className="text-cyan-400">/&gt;</span>
+              <span className="text-lg font-semibold hidden sm:block">
+                <span className="text-slate-400">&lt;</span>
+                <span className="text-white">Jatin</span>
+                <span className="text-cyan-400"> /</span>
+                <span className="text-slate-400">&gt;</span>
               </span>
-            </motion.div>
+            </motion.a>
 
-            {/* Desktop Nav */}
-            <div className="hidden lg:flex items-center gap-1">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-1">
               {navItems.map((item, index) => (
                 <motion.button
                   key={item.id}
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: index * 0.05 }}
                   onClick={() => scrollToSection(item.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
-                    activeSection === item.id
-                      ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  className={`relative px-4 py-2 text-sm font-medium transition-colors ${
+                    activeSection === item.id ? 'text-cyan-400' : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <item.icon size={16} />
-                  {item.label}
+                  {activeSection === item.id && (
+                    <motion.div
+                      layoutId="navIndicator"
+                      className="absolute inset-0 bg-cyan-500/10 border border-cyan-500/20 rounded-lg"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <span className="relative z-10">{item.label}</span>
                 </motion.button>
               ))}
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl bg-slate-800/50 border border-slate-700/50"
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            {/* Resume Button & Mobile Menu */}
+            <div className="flex items-center gap-4">
+              <motion.a
+                href="https://res.cloudinary.com/dvcsyodaw/image/upload/v1749717795/Jatin_Tyagi_7906994533_xwm3xf.pdf"
+                target="_blank"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-cyan-500/50 text-cyan-400 rounded-lg text-sm font-medium hover:bg-cyan-500/10 transition-all"
+              >
+                <Download size={16} />
+                Resume
+              </motion.a>
+
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-slate-400 hover:text-white transition-colors"
+              >
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -420,618 +480,513 @@ export function App() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/50"
+              className="md:hidden bg-slate-950/95 backdrop-blur-xl border-b border-slate-800"
             >
-              <div className="px-4 py-4 space-y-2">
+              <div className="px-6 py-4 space-y-1">
                 {navItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => scrollToSection(item.id)}
-                    className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                    className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                       activeSection === item.id
-                        ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30'
+                        ? 'bg-cyan-500/10 text-cyan-400'
                         : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
                     }`}
                   >
-                    <item.icon size={18} />
                     {item.label}
                   </button>
                 ))}
+                <a
+                  href="https://res.cloudinary.com/dvcsyodaw/image/upload/v1749717795/Jatin_Tyagi_7906994533_xwm3xf.pdf"
+                  target="_blank"
+                  className="flex items-center gap-2 px-4 py-3 text-cyan-400 text-sm font-medium"
+                >
+                  <Download size={16} />
+                  Download Resume
+                </a>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </nav>
+      </motion.nav>
 
       {/* Hero Section */}
-      <section id="home" className="min-h-screen flex items-center justify-center relative pt-16">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px]"></div>
-          <div className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px]"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-500/5 rounded-full blur-[150px]"></div>
-        </div>
-
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.03)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 py-20">
+      <section id="home" className="relative min-h-screen flex items-center justify-center pt-20">
+        <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
+              {/* Status Badge */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 mb-6"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-full mb-8"
               >
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                 </span>
-                <span className="text-sm text-slate-300">Available for opportunities</span>
+                <span className="text-sm text-slate-400">Open for opportunities</span>
               </motion.div>
 
-              {/* Name with Profile Image */}
-              <div className="flex items-center gap-6 mb-4">
-                <motion.h1
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight"
-                >
+              {/* Main Heading */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mb-6"
+              >
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4">
                   <span className="text-slate-300">Hi, I'm</span>
                   <br />
-                  <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                     Jatin Tyagi
                   </span>
-                </motion.h1>
+                </h1>
+                <div className="flex items-center gap-3">
+                  <div className="h-px w-12 bg-gradient-to-r from-cyan-500 to-transparent" />
+                  <p className="text-xl text-slate-400 font-light">Software Developer</p>
+                </div>
+              </motion.div>
 
-                {/* Circular Profile Image */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                  className="relative flex-shrink-0"
+              {/* Description */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg"
+              >
+                Building exceptional digital experiences with modern technologies. 
+                Specialized in <span className="text-cyan-400">Spring Boot</span>, <span className="text-cyan-400">Flutter</span>, and <span className="text-cyan-400">React.js</span>.
+              </motion.p>
+
+              {/* CTA Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="flex flex-wrap gap-4 mb-10"
+              >
+                <MagneticButton
+                  onClick={() => scrollToSection('contact')}
+                  className="group px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-medium flex items-center gap-2 hover:shadow-xl hover:shadow-cyan-500/20 transition-all"
                 >
-                  {/* Animated ring */}
-                  <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 animate-spin-slow opacity-75 blur-sm"></div>
-                  <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 opacity-75"></div>
+                  Let's Talk
+                  <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </MagneticButton>
+                <MagneticButton
+                  onClick={() => scrollToSection('projects')}
+                  className="px-8 py-4 bg-slate-900/50 border border-slate-700 rounded-xl font-medium hover:border-slate-600 hover:bg-slate-900 transition-all"
+                >
+                  View Projects
+                </MagneticButton>
+              </motion.div>
+
+              {/* Social Links */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="flex items-center gap-4"
+              >
+                <span className="text-slate-500 text-sm">Find me on</span>
+                <div className="flex gap-3">
+                  {[
+                    { icon: Github, href: 'https://github.com/Jatintyagi090909/', label: 'GitHub' },
+                    { icon: Linkedin, href: 'https://www.linkedin.com/in/jatin-tyagi-81b104198', label: 'LinkedIn' },
+                    { icon: Mail, href: 'mailto:jatintyagi0909@gmail.com', label: 'Email' }
+                  ].map((social) => (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-3 bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-xl hover:border-cyan-500/50 hover:bg-slate-800/50 transition-all duration-300 group"
+                      title={social.label}
+                    >
+                      <social.icon size={20} className="text-slate-400 group-hover:text-cyan-400 transition-colors" />
+                    </a>
+                  ))}
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Right Content - Profile Image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="relative flex justify-center lg:justify-end"
+            >
+              <div className="relative">
+                {/* Decorative Elements */}
+                <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-full opacity-20 blur-2xl" />
+                
+                {/* Profile Image Container */}
+                <div className="relative w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80">
+                  {/* Rotating Border */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 animate-spin-slow" />
+                  <div className="absolute inset-1 rounded-full bg-slate-950" />
                   
-                  {/* Profile image container */}
-                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-full overflow-hidden border-4 border-slate-950 bg-slate-800">
-                    {/* Replace this src with your actual photo URL */}
+                  {/* Image */}
+                  <div className="absolute inset-2 rounded-full overflow-hidden border-2 border-slate-800">
                     <img
                       src="https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247404/1771247211769_2_a2rbmq.jpg"
                       alt="Jatin Tyagi"
                       className="w-full h-full object-cover"
                     />
-                    {/* Uncomment below and add your photo path to use your own image */}
-                    {/* <img src="/your-photo.jpg" alt="Jatin Tyagi" className="w-full h-full object-cover" /> */}
                   </div>
 
-                  {/* Status indicator */}
-                  <div className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-4 border-slate-950">
-                    <span className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"></span>
+                  {/* Status Badge */}
+                  <div className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-slate-900/90 backdrop-blur-sm border border-slate-700 rounded-full">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                    </span>
+                    <span className="text-xs text-slate-300">Available</span>
+                  </div>
+                </div>
+
+                {/* Floating Tech Badges */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1 }}
+                  className="absolute -left-8 top-8 px-4 py-2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 rounded-xl shadow-xl"
+                >
+                  <div className="flex items-center gap-2">
+                    <Code2 size={16} className="text-cyan-400" />
+                    <span className="text-sm text-white font-medium">Spring Boot</span>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.2 }}
+                  className="absolute -right-4 top-1/3 px-4 py-2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 rounded-xl shadow-xl"
+                >
+                  <div className="flex items-center gap-2">
+                    <Smartphone size={16} className="text-purple-400" />
+                    <span className="text-sm text-white font-medium">Flutter</span>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.4 }}
+                  className="absolute -left-4 bottom-16 px-4 py-2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 rounded-xl shadow-xl"
+                >
+                  <div className="flex items-center gap-2">
+                    <Layers size={16} className="text-blue-400" />
+                    <span className="text-sm text-white font-medium">React.js</span>
                   </div>
                 </motion.div>
               </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-xl sm:text-2xl text-slate-400 mb-6 h-8"
-              >
-                <TypeWriter texts={['Software Developer', 'Backend Developer', 'Mobile App Developer', 'Problem Solver']} />
-              </motion.div>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="text-slate-400 text-lg mb-8 max-w-xl"
-              >
-                Building exceptional digital experiences with modern technologies. 
-                Passionate about creating scalable applications that make a difference.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="flex flex-wrap gap-4 mb-8"
-              >
-                <button
-                  onClick={() => scrollToSection('contact')}
-                  className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/30 hover:scale-105"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    <Zap size={20} />
-                    Let's Connect
-                  </span>
-                </button>
-                <button
-                  onClick={() => scrollToSection('projects')}
-                  className="px-8 py-4 border border-slate-700 rounded-xl font-semibold hover:bg-slate-800/50 transition-all duration-300 flex items-center gap-2"
-                >
-                  <Play size={20} />
-                  View Work
-                </button>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-                className="flex gap-4"
-              >
-                {[
-                  { icon: Github, href: 'https://github.com/Jatintyagi090909/', label: 'GitHub' },
-                  { icon: Linkedin, href: 'https://www.linkedin.com/in/jatin-tyagi-81b104198', label: 'LinkedIn' },
-                  { icon: Mail, href: 'mailto:jatintyagi0909@gmail.com', label: 'Email' },
-                  { icon: Phone, href: 'tel:7906994533', label: 'Phone' }
-                ].map((social, index) => (
-                  <motion.a
-                    key={social.label}
-                    href={social.href}
-                    target={social.icon === Mail || social.icon === Phone ? undefined : '_blank'}
-                    rel="noopener noreferrer"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 + index * 0.1 }}
-                    className="p-3 bg-slate-800/50 backdrop-blur rounded-xl border border-slate-700/50 hover:border-cyan-500/50 hover:bg-slate-700/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-cyan-500/10"
-                    title={social.label}
-                  >
-                    <social.icon size={20} className="text-slate-400 hover:text-cyan-400" />
-                  </motion.a>
-                ))}
-              </motion.div>
-            </motion.div>
-
-            {/* Right Content - Code Block */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="hidden lg:block"
-            >
-              <CodeBlock />
-              
-              {/* Stats */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="grid grid-cols-3 gap-6 mt-8"
-              >
-                <StatCounter value="3+" label="Internships" icon={Briefcase} />
-                <StatCounter value="3+" label="Projects" icon={FolderGit2} />
-                <StatCounter value="10+" label="Technologies" icon={Code2} />
-              </motion.div>
             </motion.div>
           </div>
         </div>
 
+        {/* Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          transition={{ delay: 1.5 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
           <motion.div
-            animate={{ y: [0, 10, 0] }}
+            animate={{ y: [0, 8, 0] }}
             transition={{ duration: 1.5, repeat: Infinity }}
+            className="flex flex-col items-center gap-2 text-slate-500"
           >
-            <ChevronDown className="text-cyan-500/50" size={32} />
+            <span className="text-xs font-medium tracking-wider uppercase">Scroll</span>
+            <ChevronDown size={20} />
           </motion.div>
         </motion.div>
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-24 px-4 relative">
+      <section id="about" className="py-24 px-6 relative">
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex items-center gap-4 mb-12">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
-                <User className="w-6 h-6 text-cyan-400" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold">
-                <span className="text-slate-400">01.</span> About Me
-              </h2>
-              <div className="flex-1 h-px bg-gradient-to-r from-slate-700 to-transparent"></div>
-            </div>
+          <SectionHeader 
+            number="01." 
+            title="About Me" 
+            subtitle="Get to know me better"
+          />
 
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <GlowCard className="p-8" glowColor="cyan">
-                   <p className="text-lg text-slate-300 leading-relaxed mb-6">
-    Results-driven <span className="text-cyan-400 font-semibold">Software Developer</span> with hands-on experience in building scalable backend systems using Spring Boot and developing cross-platform mobile applications with Flutter. Strong expertise in REST API development, database management, and end-to-end deployment. Committed to delivering efficient and high-performance software solutions.
-  </p>
-  <p className="text-lg text-slate-300 leading-relaxed mb-8">
-    I enjoy transforming complex problems into practical solutions by designing clean architectures, integrating secure APIs, and delivering seamless user experiences across web and mobile platforms.
-  </p>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {[
-                      { icon: MapPin, text: 'Muzaffarnagar, UP', color: 'cyan' },
-                      { icon: Mail, text: 'jatintyagi0909@gmail.com', color: 'blue' },
-                      { icon: Phone, text: '+91 7906994533', color: 'green' },
-                      { icon: GraduationCap, text: 'MCA Graduate', color: 'purple' }
-                    ].map((item, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex items-center gap-3 text-slate-300 min-w-0"
-                      >
-                        <item.icon className={`text-${item.color}-400 flex-shrink-0`} size={18} />
-                        <span className="text-sm break-words">{item.text}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                </GlowCard>
-              </div>
+          <div className="grid lg:grid-cols-5 gap-12 items-start">
+            {/* Left Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-3 space-y-6"
+            >
+              <p className="text-slate-300 text-lg leading-relaxed">
+                I'm a results-driven <span className="text-cyan-400 font-medium">Software Developer</span> with hands-on experience in building scalable backend systems using Spring Boot and developing cross-platform mobile applications with Flutter.
+              </p>
+              <p className="text-slate-400 leading-relaxed">
+                Strong expertise in REST API development, database management, and end-to-end deployment. Committed to delivering efficient and high-performance software solutions.
+              </p>
+              <p className="text-slate-400 leading-relaxed">
+                I enjoy transforming complex problems into practical solutions by designing clean architectures, integrating secure APIs, and delivering seamless user experiences across web and mobile platforms.
+              </p>
 
-              <div className="space-y-6">
-                <GlowCard className="p-6" glowColor="blue">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="p-2 rounded-lg bg-cyan-500/20 flex-shrink-0">
-                      <Terminal className="w-5 h-5 text-cyan-400" />
+              {/* Quick Info */}
+              <div className="grid sm:grid-cols-2 gap-4 pt-6">
+                {[
+                  { icon: MapPin, label: 'Location', value: 'Muzaffarnagar, UP' },
+                  { icon: Mail, label: 'Email', value: 'jatintyagi0909@gmail.com' },
+                  { icon: Phone, label: 'Phone', value: '+91 7906994533' },
+                  { icon: GraduationCap, label: 'Degree', value: 'MCA Graduate' }
+                ].map((item, index) => (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center gap-3 p-4 bg-slate-900/30 border border-slate-800/50 rounded-xl"
+                  >
+                    <div className="p-2 bg-cyan-500/10 rounded-lg">
+                      <item.icon size={18} className="text-cyan-400" />
                     </div>
-                    <span className="text-slate-400 font-mono text-sm truncate">~/jatin/tech-stack</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {['Java', 'Spring Boot', 'Flutter', 'React.js', 'Angular', 'PostgreSQL', 'Firebase', 'Git', 'Jenkins'].map((tech, i) => (
-                      <span key={i} className="px-3 py-1 bg-slate-800 rounded-full text-sm text-cyan-400 border border-slate-700">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </GlowCard>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <GlowCard className="p-4 text-center" glowColor="purple">
-                    <div className="text-3xl font-bold text-purple-400 mb-1">3+</div>
-                    <div className="text-slate-400 text-sm">Internships</div>
-                  </GlowCard>
-                  <GlowCard className="p-4 text-center" glowColor="green">
-                    <div className="text-3xl font-bold text-green-400 mb-1">3+</div>
-                    <div className="text-slate-400 text-sm">Projects Built</div>
-                  </GlowCard>
-                </div>
-
-                <motion.a
-                  href="https://res-console.cloudinary.com/dvcsyodaw/thumbnails/v1/image/upload/v1771251803/SmF0aW5fVHlhZ2lfNzkwNjk5NDUzM18xNF9oc3dmcWk=/as_is/Jatin_Tyagi_7906994533_14_hswfqi"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center justify-center gap-2 w-full py-4 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-xl text-cyan-400 font-semibold hover:bg-cyan-500/20 transition-all duration-300"
-                >
-                  <Download size={20} />
-                  View Resume
-                </motion.a>
+                    <div className="min-w-0">
+                      <p className="text-slate-500 text-xs uppercase tracking-wider">{item.label}</p>
+                      <p className="text-white text-sm font-medium truncate">{item.value}</p>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+
+            {/* Right - Stats */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-2 space-y-6"
+            >
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { value: '3+', label: 'Internships', icon: Briefcase },
+                  { value: '3+', label: 'Projects', icon: FolderGit2 },
+                  { value: '10+', label: 'Technologies', icon: Code2 },
+                  { value: '2025', label: 'MCA Graduate', icon: GraduationCap }
+                ].map((stat, index) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-6 bg-slate-900/30 border border-slate-800/50 rounded-2xl text-center hover:border-slate-700 transition-colors"
+                  >
+                    <stat.icon className="w-6 h-6 text-cyan-400 mx-auto mb-3" />
+                    <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
+                    <div className="text-slate-500 text-sm">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Resume Download */}
+              <motion.a
+                href="https://res.cloudinary.com/dvcsyodaw/image/upload/v1749717795/Jatin_Tyagi_7906994533_xwm3xf.pdf"
+                target="_blank"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center justify-center gap-3 w-full py-4 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-xl text-cyan-400 font-medium hover:border-cyan-500/50 transition-all"
+              >
+                <Download size={20} />
+                Download Resume
+              </motion.a>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Skills Section */}
-      <section id="skills" className="py-24 px-4 relative bg-gradient-to-b from-slate-950 via-slate-900/50 to-slate-950">
+      <section id="skills" className="py-24 px-6 relative">
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex items-center gap-4 mb-12">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30">
-                <Code2 className="w-6 h-6 text-blue-400" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold">
-                <span className="text-slate-400">02.</span> Tech Stack
-              </h2>
-              <div className="flex-1 h-px bg-gradient-to-r from-slate-700 to-transparent"></div>
-            </div>
+          <SectionHeader 
+            number="02." 
+            title="Skills & Technologies" 
+            subtitle="Technologies I work with"
+          />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {skills.map((skill, index) => (
-                <motion.div
-                  key={skill.category}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <GlowCard className="p-6 h-full" glowColor={skill.color}>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={`p-2 rounded-lg bg-${skill.color}-500/20`}>
-                        <skill.icon className={`w-5 h-5 text-${skill.color}-400`} />
-                      </div>
-                      <h3 className="font-semibold text-white">{skill.category}</h3>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {skill.items.map((item) => (
-                        <span
-                          key={item}
-                          className={`px-3 py-1.5 bg-slate-800/50 rounded-lg text-sm text-slate-300 border border-slate-700/50 hover:border-${skill.color}-500/50 hover:text-${skill.color}-400 transition-colors cursor-default`}
-                        >
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-                  </GlowCard>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {skillCategories.map((category, categoryIndex) => (
+              <motion.div
+                key={category.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: categoryIndex * 0.1 }}
+                className="group p-6 bg-slate-900/30 backdrop-blur-sm border border-slate-800/50 rounded-2xl hover:border-slate-700 transition-all duration-300"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-cyan-500/10 rounded-lg group-hover:bg-cyan-500/20 transition-colors">
+                    <category.icon size={20} className="text-cyan-400" />
+                  </div>
+                  <h3 className="font-semibold text-white">{category.title}</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {category.skills.map((skill) => (
+                    <SkillBadge key={skill} name={skill} />
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Experience Section */}
-      <section id="experience" className="py-24 px-4 relative">
+      <section id="experience" className="py-24 px-6 relative">
         <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex items-center gap-4 mb-12">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30">
-                <Briefcase className="w-6 h-6 text-purple-400" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold">
-                <span className="text-slate-400">03.</span> Experience
-              </h2>
-              <div className="flex-1 h-px bg-gradient-to-r from-slate-700 to-transparent"></div>
-            </div>
+          <SectionHeader 
+            number="03." 
+            title="Experience" 
+            subtitle="My professional journey"
+          />
 
-            <div className="relative">
-              {/* Timeline Line */}
-              <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-cyan-500 via-blue-500 to-purple-500"></div>
-
-              <div className="space-y-12">
-                {experiences.map((exp, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.2 }}
-                    className="relative pl-20"
-                  >
-                    {/* Timeline Dot */}
-                    <div className={`absolute left-6 top-0 w-5 h-5 rounded-full bg-${exp.color}-500 border-4 border-slate-950 shadow-lg shadow-${exp.color}-500/50`}></div>
-
-                    <GlowCard className="p-6" glowColor={exp.color}>
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-xl font-bold text-white break-words">{exp.title}</h3>
-                          <p className={`text-${exp.color}-400 font-medium break-words`}>{exp.company}</p>
-                          <p className="text-slate-500 text-sm mt-1">{exp.location}</p>
-                        </div>
-                        <span className={`px-4 py-1.5 bg-${exp.color}-500/10 text-${exp.color}-400 rounded-full text-sm font-medium border border-${exp.color}-500/30 whitespace-nowrap flex-shrink-0`}>
-                          {exp.period}
-                        </span>
-                      </div>
-                      <ul className="space-y-3">
-                        {exp.highlights.map((highlight, i) => (
-                          <li key={i} className="flex gap-3 text-slate-300">
-                            <span className={`text-${exp.color}-400 mt-1.5 flex-shrink-0`}>▹</span>
-                            <span className="break-words">{highlight}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </GlowCard>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+          <div className="relative">
+            {experiences.map((exp, index) => (
+              <ExperienceCard key={index} exp={exp} index={index} />
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-24 px-4 relative bg-gradient-to-b from-slate-950 via-slate-900/50 to-slate-950">
+      <section id="projects" className="py-24 px-6 relative">
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex items-center gap-4 mb-12">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/20 to-cyan-500/20 border border-green-500/30">
-                <FolderGit2 className="w-6 h-6 text-green-400" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold">
-                <span className="text-slate-400">04.</span> Projects
-              </h2>
-              <div className="flex-1 h-px bg-gradient-to-r from-slate-700 to-transparent"></div>
-            </div>
+          <SectionHeader 
+            number="04." 
+            title="Featured Projects" 
+            subtitle="Some things I've built"
+          />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <GlowCard className="h-full flex flex-col" glowColor={project.color}>
-                    <div className={`h-40 bg-gradient-to-br from-${project.color}-500/10 to-${project.color}-600/10 flex items-center justify-center border-b border-slate-800 flex-shrink-0`}>
-                      <project.icon className={`w-16 h-16 text-${project.color}-400`} />
-                    </div>
-                    <div className="p-6 flex-1 flex flex-col min-h-0">
-                      <div className="flex items-start justify-between gap-3 mb-4">
-                        <h3 className="text-lg font-bold text-white break-words min-w-0 flex-1">{project.title}</h3>
-                        <a
-                          href={project.link}
-                          className={`p-2 rounded-lg bg-slate-800/50 hover:bg-${project.color}-500/20 transition-colors flex-shrink-0`}
-                        >
-                          <ExternalLink size={18} className="text-slate-400" />
-                        </a>
-                      </div>
-                      <p className="text-slate-400 text-sm mb-4 flex-1 break-words">{project.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {project.tech.map((tech) => (
-                          <span
-                            key={tech}
-                            className={`px-2 py-1 bg-${project.color}-500/10 text-${project.color}-400 rounded text-xs font-mono`}
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </GlowCard>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project, index) => (
+              <ProjectCard key={index} project={project} index={index} />
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Education Section */}
-      <section id="education" className="py-24 px-4 relative">
+      <section className="py-24 px-6 relative">
         <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex items-center gap-4 mb-12">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-yellow-500/20 border border-orange-500/30">
-                <GraduationCap className="w-6 h-6 text-orange-400" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold">
-                <span className="text-slate-400">05.</span> Education
-              </h2>
-              <div className="flex-1 h-px bg-gradient-to-r from-slate-700 to-transparent"></div>
-            </div>
+          <SectionHeader 
+            number="05." 
+            title="Education & Certifications" 
+          />
 
-            <div className="grid md:grid-cols-2 gap-6 mb-12">
+          {/* Education */}
+          <div className="grid md:grid-cols-2 gap-6 mb-12">
+            {[
+              {
+                degree: 'Master of Computer Applications',
+                short: 'MCA',
+                institution: 'Uttaranchal University, Dehradun',
+                period: '2023 – 2025',
+                color: 'cyan'
+              },
+              {
+                degree: 'Bachelor of Computer Application',
+                short: 'BCA',
+                institution: 'Monad University, Hapur',
+                period: '2020 – 2023',
+                color: 'blue'
+              }
+            ].map((edu, index) => (
               <motion.div
-                initial={{ opacity: 0, x: -30 }}
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="p-6 bg-slate-900/30 border border-slate-800/50 rounded-2xl hover:border-slate-700 transition-colors"
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 bg-${edu.color}-500/10 rounded-xl`}>
+                    <GraduationCap className={`w-6 h-6 text-${edu.color}-400`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-white">{edu.degree}</h3>
+                    <p className="text-slate-400 text-sm">{edu.short}</p>
+                    <p className={`text-${edu.color}-400 font-medium mt-2`}>{edu.institution}</p>
+                    <p className="text-slate-500 text-sm">{edu.period}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Certifications */}
+          <h3 className="flex items-center gap-3 text-xl font-semibold mb-6">
+            <Award className="w-5 h-5 text-yellow-400" />
+            Certifications
+          </h3>
+          <div className="grid gap-4">
+            {[
+              { title: 'Machine Learning', org: 'SWAYAM, NPTEL', date: 'March 2024' },
+              { title: 'Learn Everything about AI, Bootcamp', org: 'DevTown', date: 'June 2024' },
+              { title: 'Volunteer – 38th National Games', org: 'Dehradun', date: '2025' }
+            ].map((cert, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="flex items-center gap-4 p-4 bg-slate-900/30 border border-slate-800/50 rounded-xl hover:border-slate-700 transition-colors"
               >
-                <GlowCard className="p-6 h-full" glowColor="cyan">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="p-3 rounded-xl bg-cyan-500/20 flex-shrink-0">
-                      <GraduationCap className="w-6 h-6 text-cyan-400" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-white break-words">Master of Computer Applications</h3>
-                      <p className="text-slate-400 text-sm">MCA</p>
-                    </div>
-                  </div>
-                  <p className="text-cyan-400 font-medium break-words">Uttaranchal University, Dehradun</p>
-                  <p className="text-slate-500 text-sm"> 2023 – 2025</p>
-                </GlowCard>
+                <div className="p-2 bg-yellow-500/10 rounded-lg">
+                  <Award size={18} className="text-yellow-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white">{cert.title}</h4>
+                  <p className="text-slate-500 text-sm">{cert.org} • {cert.date}</p>
+                </div>
               </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-              >
-                <GlowCard className="p-6 h-full" glowColor="blue">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="p-3 rounded-xl bg-blue-500/20 flex-shrink-0">
-                      <GraduationCap className="w-6 h-6 text-blue-400" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-white break-words">Bachelor of Computer Application</h3>
-                      <p className="text-slate-400 text-sm">BCA</p>
-                    </div>
-                  </div>
-                  <p className="text-blue-400 font-medium break-words">Monad University, Hapur</p>
-                  <p className="text-slate-500 text-sm"> 2020 – 2023</p>
-                </GlowCard>
-              </motion.div>
-            </div>
-
-            {/* Certifications */}
-            <div className="flex items-center gap-4 mb-8">
-              <Award className="w-6 h-6 text-yellow-400" />
-              <h3 className="text-2xl font-bold">Certifications</h3>
-            </div>
-
-            <div className="grid gap-4">
-              {[
-                { title: 'Machine Learning', org: 'SWAYAM, NPTEL Online Certification', date: 'March 2024', color: 'green' },
-                { title: 'Learn Everything about AI, Bootcamp', org: 'DevTown', date: 'June 2024', color: 'purple' },
-                { title: 'Volunteer – 38th National Games', org: 'Dehradun', date: '2025', color: 'orange' }
-              ].map((cert, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <GlowCard className="p-4" glowColor={cert.color}>
-                    <div className="flex items-start gap-4">
-                      <div className={`p-2 rounded-lg bg-${cert.color}-500/20 flex-shrink-0`}>
-                        <Award className={`w-5 h-5 text-${cert.color}-400`} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-semibold text-white break-words">{cert.title}</h4>
-                        <p className="text-slate-400 text-sm break-words">{cert.org} | {cert.date}</p>
-                      </div>
-                    </div>
-                  </GlowCard>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 px-4 relative bg-gradient-to-b from-slate-950 via-slate-900/50 to-slate-950">
-        <div className="max-w-4xl mx-auto">
+      <section id="contact" className="py-24 px-6 relative">
+        <div className="max-w-4xl mx-auto text-center">
+          <SectionHeader 
+            number="06." 
+            title="Get In Touch" 
+          />
+
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
+            className="max-w-2xl mx-auto"
           >
-            <div className="inline-flex items-center gap-3 mb-6">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 border border-pink-500/30">
-                <Mail className="w-6 h-6 text-pink-400" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold">
-                <span className="text-slate-400">06.</span> Get In Touch
-              </h2>
-            </div>
-
-            <p className="text-slate-400 text-lg mb-12 max-w-2xl mx-auto">
+            <p className="text-slate-400 text-lg mb-12">
               I'm currently looking for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!
             </p>
 
+            {/* Contact Cards */}
             <div className="grid sm:grid-cols-2 gap-4 mb-12">
               {[
-                { icon: Mail, label: 'Email', value: 'jatintyagi0909@gmail.com', href: 'mailto:jatintyagi0909@gmail.com', color: 'cyan' },
-                { icon: Phone, label: 'Phone', value: '+91 7906994533', href: 'tel:7906994533', color: 'green' },
-                { icon: Linkedin, label: 'LinkedIn', value: 'Connect with me', href: 'https://www.linkedin.com/in/jatin-tyagi-81b104198', color: 'blue' },
-                { icon: Github, label: 'GitHub', value: 'View my code', href: 'https://github.com/Jatintyagi090909/', color: 'purple' }
+                { icon: Mail, label: 'Email', value: 'jatintyagi0909@gmail.com', href: 'mailto:jatintyagi0909@gmail.com' },
+                { icon: Phone, label: 'Phone', value: '+91 7906994533', href: 'tel:7906994533' },
+                { icon: Linkedin, label: 'LinkedIn', value: 'Connect', href: 'https://www.linkedin.com/in/jatin-tyagi-81b104198' },
+                { icon: Github, label: 'GitHub', value: 'Follow', href: 'https://github.com/Jatintyagi090909/' }
               ].map((contact, index) => (
                 <motion.a
                   key={index}
@@ -1042,52 +997,53 @@ export function App() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ y: -4 }}
+                  className="flex items-center gap-4 p-5 bg-slate-900/30 border border-slate-800/50 rounded-xl hover:border-cyan-500/30 hover:bg-slate-900/50 transition-all group"
                 >
-                  <GlowCard className="p-4" glowColor={contact.color}>
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-xl bg-${contact.color}-500/20 flex-shrink-0`}>
-                        <contact.icon className={`w-5 h-5 text-${contact.color}-400`} />
-                      </div>
-                      <div className="text-left min-w-0 flex-1">
-                        <p className="text-slate-500 text-sm">{contact.label}</p>
-                        <p className="font-medium text-white break-all">{contact.value}</p>
-                      </div>
-                    </div>
-                  </GlowCard>
+                  <div className="p-3 bg-cyan-500/10 rounded-xl group-hover:bg-cyan-500/20 transition-colors">
+                    <contact.icon size={20} className="text-cyan-400" />
+                  </div>
+                  <div className="text-left min-w-0 flex-1">
+                    <p className="text-slate-500 text-sm">{contact.label}</p>
+                    <p className="text-white font-medium truncate">{contact.value}</p>
+                  </div>
+                  <ArrowUpRight size={18} className="text-slate-600 group-hover:text-cyan-400 transition-colors" />
                 </motion.a>
               ))}
             </div>
 
+            {/* CTA Button */}
             <motion.a
               href="mailto:jatintyagi0909@gmail.com"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center gap-2 px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold text-lg hover:shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300"
+              className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold text-lg hover:shadow-2xl hover:shadow-cyan-500/20 transition-all"
             >
-              <Sparkles size={22} />
-              Say Hello!
+              Say Hello
+              <ArrowUpRight size={20} />
             </motion.a>
           </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 border-t border-slate-800/50">
+      <footer className="py-12 px-6 border-t border-slate-800/50">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Logo */}
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                 <Terminal className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold">
-                <span className="text-cyan-400">&lt;</span>
-                Jatin Tyagi
-                <span className="text-cyan-400">/&gt;</span>
+              <span className="font-semibold">
+                <span className="text-slate-400">&lt;</span>
+                <span className="text-white">Jatin Tyagi</span>
+                <span className="text-cyan-400"> /</span>
+                <span className="text-slate-400">&gt;</span>
               </span>
             </div>
 
+            {/* Social Links */}
             <div className="flex gap-4">
               {[
                 { icon: Github, href: 'https://github.com/Jatintyagi090909/' },
@@ -1106,12 +1062,13 @@ export function App() {
               ))}
             </div>
 
+            {/* Copyright */}
             <div className="text-center md:text-right">
               <p className="text-slate-500 text-sm">
-                © {new Date().getFullYear()} Jatin Tyagi. All rights reserved.
+                © {new Date().getFullYear()} Jatin Tyagi
               </p>
               <p className="text-slate-600 text-xs mt-1">
-                Built with React.js, TypeScript & Tailwind CSS
+                Built with React, TypeScript & Tailwind
               </p>
             </div>
           </div>
