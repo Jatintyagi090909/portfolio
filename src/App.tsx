@@ -272,21 +272,21 @@ const projects = [
     title: 'Noteshala ERP WebView App',
     description: 'Flutter-based WebView app enabling seamless mobile access to ERP features. Implemented Flutter Flavors for multi-client deployment from single codebase.',
     tech: ['Flutter', 'WebView', 'Flavors', 'Play Store'],
-    iconUrl: 'https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247581/Picsart_26-02-16_18-42-18-490_fnuzrv.png',
+    iconUrl: 'https://drive.google.com/file/d/1xl0GNsP0uU7ErB0G2vGwl65UxtzcBpAb/view?usp=sharing',
     link: 'https://play.google.com/store/apps/details?id=com.softiwa.noteshala'
   },
   {
     title: 'CircleBook App',
     description: 'Professional Committee Management app with Firebase authentication, real-time database sync, and published on Google Play Store.',
     tech: ['Flutter', 'Spring Boot', 'Firebase', 'REST API'],
-    iconUrl: 'https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247582/Picsart_26-02-16_18-42-42-221_devoy3.png',
+    iconUrl: 'https://drive.google.com/file/d/1biWcYJ6L9NVWO1c3P6nmBghDbX1zKvFn/view?usp=sharing',
     link: 'https://play.google.com/store/apps/details?id=com.softiwa.circlebook'
   },
   {
     title: 'Shubhchintak Foundation Website',
     description: 'Responsive React.js website with dynamic routing, Formik forms, Yup validation, and custom page transition animations.',
     tech: ['React.js', 'React Router', 'Formik', 'Netlify'],
-    iconUrl: 'https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247963/shubh_png_2_fk0v5g.jpg',
+    iconUrl: 'https://drive.google.com/file/d/1QWSVfMHXdxnawFKiLIsnIQyv20Ln2c3F/view?usp=sharing',
     link: 'https://shubhchintakfoundationtrust.netlify.app/'
   }
 ];
@@ -453,7 +453,7 @@ export function App() {
             {/* Resume Button & Mobile Menu */}
             <div className="flex items-center gap-4">
               <motion.a
-                href="https://res.cloudinary.com/dvcsyodaw/image/upload/v1749717795/Jatin_Tyagi_7906994533_xwm3xf.pdf"
+                href="https://drive.usercontent.google.com/u/0/uc?id=1vHhBjHhbe6l8oCd1PSy4P5dVf5HXsBB9&export=download"
                 target="_blank"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -497,7 +497,7 @@ export function App() {
                   </button>
                 ))}
                 <a
-                  href="https://res.cloudinary.com/dvcsyodaw/image/upload/v1749717795/Jatin_Tyagi_7906994533_xwm3xf.pdf"
+                  href="https://drive.usercontent.google.com/u/0/uc?id=1vHhBjHhbe6l8oCd1PSy4P5dVf5HXsBB9&export=download"
                   target="_blank"
                   className="flex items-center gap-2 px-4 py-3 text-cyan-400 text-sm font-medium"
                 >
@@ -636,7 +636,7 @@ export function App() {
                   {/* Image */}
                   <div className="absolute inset-2 rounded-full overflow-hidden border-2 border-slate-800">
                     <img
-                      src="https://res.cloudinary.com/dvcsyodaw/image/upload/v1771247404/1771247211769_2_a2rbmq.jpg"
+                      src="https://drive.google.com/file/d/1XCt0_GsWdL-pLtFRQZ24dBvwgkj63K4A/view?usp=sharing"
                       alt="Jatin Tyagi"
                       className="w-full h-full object-cover"
                     />
@@ -797,7 +797,7 @@ export function App() {
 
               {/* Resume Download */}
               <motion.a
-                href="https://res.cloudinary.com/dvcsyodaw/image/upload/v1749717795/Jatin_Tyagi_7906994533_xwm3xf.pdf"
+                href="https://drive.usercontent.google.com/u/0/uc?id=1vHhBjHhbe6l8oCd1PSy4P5dVf5HXsBB9&export=download"
                 target="_blank"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
